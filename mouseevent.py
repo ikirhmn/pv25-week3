@@ -1,11 +1,10 @@
 import sys
- 
+import random
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QApplication, QGridLayout, QLabel
 
 
-class Example(QWidget):
-
+class Task3(QWidget):
     def __init__(self):
         super().__init__()
         self.init_ui()
@@ -19,11 +18,14 @@ class Example(QWidget):
         self.text = f'x: {x},  y: {y}'
 
         self.label = QLabel(self.text, self)
-        grid.addWidget(self.label, 0, 0, Qt.AlignTop)
+        self.label.setStyleSheet("font-size: 14px; padding: 5px;")
+        self.label.move(50, 50)
 
-        # mouse tracking didisable secara default
-        # perlu dienable dulu
         self.setMouseTracking(True)
+        self.label.setMouseTracking(True)
+        self.label.setAttribute(Qt.WA_Hover)
+
+        self.label.installEventFilter(self) 
 
         self.setLayout(grid)
         self.setWindowTitle("Task Week 3 - Rizki Rahman Maulana - F1D022093")
@@ -31,16 +33,26 @@ class Example(QWidget):
         self.show()
 
     def mouseMoveEvent(self, e):
-        x = e.x()
-        y = e.y()
-
-        text = f'x: {x},  y: {y}'
-        self.label.setText(text)
-
+        if e.button() == Qt.NoButton:
+            x = e.x()
+            y = e.y()
+            text = f'x: {x},  y: {y}'
+            self.label.setText(text)
+    def eventFilter(self, obj, e):
+        if obj == self.label and e.type() == e.Enter:
+            self.moveLabelRandomly()
+        return super().eventFilter(obj, e)
+         
+     def moveLabelRandomly(self):
+        max_x = max(0, self.width() - self.label.width())
+        max_y = max(0, self.height() - self.label.height())
+        new_x = random.randint(0, max_x)
+        new_y = random.randint(0, max_y)
+        self.label.move(QPoint(new_x, new_y))
 
 def main():
     app = QApplication(sys.argv)
-    ex = Example()
+    ex = Task3()
     sys.exit(app.exec_())
 
 
